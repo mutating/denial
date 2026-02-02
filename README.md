@@ -212,6 +212,20 @@ def some_function(sentinel: MySentinelType):
 
 Using the derived class at runtime is completely identical to using the original `InnerNoneType` type and allows you to conveniently narrow down the scope of use of a specific type.
 
+If you need to prevent more than one instance of your class from being created, use the `singleton` flag:
+
+```python
+class MySentinelType(InnerNoneType, singleton=True):
+    ...
+
+sentinel = MySentinelType()
+second_sentinel = MySentinelType()
+#> ...
+#> denial.errors.DoubleSingletonsInstantiationError: Class "MySentinelType" is marked with a flag prohibiting the creation of more than one instance.
+```
+
+To avoid misunderstandings, if you mark a class with the `singleton` flag, all its descendants must also have this tag.
+
 
 ## Analogues
 
