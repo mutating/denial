@@ -1,7 +1,14 @@
 from threading import Thread
 from typing import cast
 
+import pytest
+from full_match import match
+
 from denial import InnerNone, InnerNoneType
+from denial.errors import (
+    DoubleSingletonsInstantiationError,
+    SingletonMarkConflictError,
+)
 
 
 def test_inner_none_is_inner_none():
@@ -170,3 +177,59 @@ def test_i_can_use_auto_flag_manually():
     instance = InnerNoneType()
 
     assert InnerNoneType(instance.id, auto=True) == instance
+
+
+def test_inheritor_singleton_double_usage():
+    class LocalInheritor(InnerNoneType, singleton=True):
+        ...
+
+    LocalInheritor()
+
+    with pytest.raises(DoubleSingletonsInstantiationError, match=match('Class "LocalInheritor" is marked with a flag prohibiting the creation of more than one instance.')):
+        LocalInheritor()
+
+
+def test_inheritor_not_singleton_double_usage():
+    class AnotherLocalInheritor(InnerNoneType):
+        ...
+
+    first_instance = AnotherLocalInheritor()
+    second_instance = AnotherLocalInheritor()
+
+    assert cast(int, second_instance.id) > cast(int, first_instance.id)
+
+
+def test_try_to_inherit_singleton_class_with_singleton_mark():
+    class FirstLocalInheritor(InnerNoneType, singleton=True):
+        ...
+
+    class SecondLocalInheritor(FirstLocalInheritor, singleton=True):
+        ...
+
+
+def test_try_to_inherit_singleton_class_with_no_singleton_mark():
+    class FirstLocalInheritor(InnerNoneType, singleton=True):
+        ...
+
+    with pytest.raises(SingletonMarkConflictError, match=match('An inheritor of a singleton class cannot be declared a non-singleton.')):
+        class SecondLocalInheritor(FirstLocalInheritor, singleton=False):
+            ...
+
+    with pytest.raises(SingletonMarkConflictError, match=match('An inheritor of a singleton class cannot be declared a non-singleton.')):
+        class AnotherSecondLocalInheritor(FirstLocalInheritor, singleton=False):
+            ...
+
+
+def test_independence_of_singleton_marks():
+    class FirstLocalInheritor(InnerNoneType, singleton=True):
+        ...
+
+    FirstLocalInheritor()
+
+    class SecondLocalInheritor(FirstLocalInheritor, singleton=True):
+        ...
+
+    SecondLocalInheritor()
+
+    with pytest.raises(DoubleSingletonsInstantiationError, match=match('Class "SecondLocalInheritor" is marked with a flag prohibiting the creation of more than one instance.')):
+        SecondLocalInheritor()
