@@ -1,10 +1,13 @@
 from itertools import count
-from typing import Any, Optional, Union
 from threading import Lock
+from typing import Any, Optional, Union
 
 from printo import descript_data_object, not_none
 
-from denial.errors import DoubleSingletonsInstantiationError, SingletonStatusTagConflictError
+from denial.errors import (
+    DoubleSingletonsInstantiationError,
+    SingletonStatusTagConflictError,
+)
 
 
 class InnerNoneType:
