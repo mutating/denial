@@ -1,8 +1,9 @@
-from threading import Thread
+from threading import Thread, Lock
 from typing import cast
 
 import pytest
 from full_match import match
+from locklib import LockTraceWrapper
 
 from denial import InnerNone, InnerNoneType
 from denial.errors import (
@@ -233,3 +234,101 @@ def test_independence_of_singleton_marks():
 
     with pytest.raises(DoubleSingletonsInstantiationError, match=match('Class "SecondLocalInheritor" is marked with a flag prohibiting the creation of more than one instance.')):
         SecondLocalInheritor()
+
+
+def test_check_instances_for_singleton_is_under_lock():
+    lock = LockTraceWrapper(Lock())
+
+    class LocalInheritor(InnerNoneType, singleton=True):
+        ...
+
+        @property
+        def has_instances(self):
+            lock.notify('has_instances')
+            return False
+
+    LocalInheritor.lock = lock
+
+    LocalInheritor()
+
+    assert lock.was_event_locked('has_instances') and lock.trace
+
+
+def test_no_check_instances_for_not_singletons():
+    breadcrumbs = []
+
+    class LocalInheritor(InnerNoneType, singleton=False):
+        ...
+
+        @property
+        def has_instances(self):
+            breadcrumbs.append('has_instances')
+            return False
+
+    LocalInheritor()
+
+    assert not breadcrumbs
+
+
+def test_creating_of_singleton_objects_is_isolated_from_other_threads():
+    number_of_iterations = 10_000
+    number_of_threads = 10
+
+    errors = []
+
+    def create_singleton_objects():
+        for _ in range(number_of_iterations):
+            class NewClass(InnerNoneType, singleton=True):
+                ...
+
+            try:
+                NewClass()
+            except:
+                errors.append(True)
+
+            try:
+                NewClass()
+            except:
+                pass
+            else:
+                errors.append(True)
+
+    threads = [Thread(target=create_singleton_objects) for _ in range(number_of_threads)]
+
+    for thread in threads:
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    assert not errors
+
+
+def test_creating_of_singleton_objects_is_thread_safe():
+    number_of_iterations = 1000
+    number_of_threads = 5
+
+    successes = []
+    errors = []
+
+    def create_object(class_object):
+        try:
+            class_object()
+        except:
+            errors.append(True)
+        else:
+            successes.append(True)
+
+    for iteration in range(number_of_iterations):
+        class NewClass(InnerNoneType, singleton=True):
+            ...
+        threads = [Thread(target=create_object, args=(NewClass,)) for _ in range(5)]
+
+        for thread in threads:
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+    assert len(successes) == number_of_iterations
+    assert len(errors) == number_of_iterations * (number_of_threads - 1)
