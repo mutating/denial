@@ -1,6 +1,15 @@
-from threading import Thread
+from threading import Lock, Thread
+from typing import cast
+
+import pytest
+from full_match import match
+from locklib import LockTraceWrapper
 
 from denial import InnerNone, InnerNoneType
+from denial.errors import (
+    DoubleSingletonsInstantiationError,
+    SingletonMarkConflictError,
+)
 
 
 def test_inner_none_is_inner_none():
@@ -32,23 +41,42 @@ def test_new_instance_has_id_more_0():
     assert instance_2.id == instance_1.id + 1
 
 
+def test_inheritor_ids():
+    instance = InnerNoneType()
+
+    class InheritorInnerNoneType(InnerNoneType):
+        ...
+
+    inheritors_instance = InheritorInnerNoneType()
+
+    assert cast(int, inheritors_instance.id) > cast(int, instance.id)
+    assert cast(int, inheritors_instance.id) < cast(int, InheritorInnerNoneType().id)
+
+
 def test_new_instance_repr():
-    new_instance = InnerNoneType()
-    new_instance_with_doc = InnerNoneType(doc='lol')
+    class InheritorInnerNoneType(InnerNoneType):
+        ...
 
-    assert repr(new_instance) == f'InnerNoneType({new_instance.id})'
-    assert repr(InnerNoneType('kek')) == "InnerNoneType('kek', auto=False)"
-    assert repr(InnerNoneType(123)) == "InnerNoneType(123, auto=False)"
-    assert repr(InnerNoneType(0)) == "InnerNoneType(0, auto=False)"
+    assert InnerNoneType.__name__ == 'InnerNoneType'
+    assert InheritorInnerNoneType.__name__ == 'InheritorInnerNoneType'
 
-    assert repr(new_instance_with_doc) == f"InnerNoneType({new_instance_with_doc.id}, doc='lol')"
-    assert repr(InnerNoneType('kek', doc='lol')) == "InnerNoneType('kek', doc='lol', auto=False)"
-    assert repr(InnerNoneType(123, doc='lol')) == "InnerNoneType(123, doc='lol', auto=False)"
-    assert repr(InnerNoneType(0, doc='lol')) == "InnerNoneType(0, doc='lol', auto=False)"
+    for class_object in (InnerNoneType, InheritorInnerNoneType):
+        class_name = class_object.__name__
+        new_instance = class_object()
+        new_instance_with_doc = class_object(doc='lol')
 
-    # Regression: falsy id (e.g. '') with auto=True must not get repr 'InnerNone' (issue 10)
-    assert repr(InnerNoneType('', auto=True)) != 'InnerNone'
-    assert 'InnerNoneType' in repr(InnerNoneType('', auto=True))
+        assert repr(new_instance) == f'{class_name}({new_instance.id})'
+        assert repr(class_object('kek')) == f"{class_name}('kek', auto=False)"
+        assert repr(class_object(123)) == f"{class_name}(123, auto=False)"
+        assert repr(class_object(0)) == f"{class_name}(0, auto=False)"
+
+        assert repr(new_instance_with_doc) == f"{class_name}({new_instance_with_doc.id}, doc='lol')"
+        assert repr(class_object('kek', doc='lol')) == f"{class_name}('kek', doc='lol', auto=False)"
+        assert repr(class_object(123, doc='lol')) == f"{class_name}(123, doc='lol', auto=False)"
+        assert repr(class_object(0, doc='lol')) == f"{class_name}(0, doc='lol', auto=False)"
+
+        assert repr(class_object('', auto=True)) != 'InnerNone'
+        assert class_name in repr(class_object('', auto=True))
 
 
 def test_eq():
@@ -150,3 +178,155 @@ def test_i_can_use_auto_flag_manually():
     instance = InnerNoneType()
 
     assert InnerNoneType(instance.id, auto=True) == instance
+
+
+def test_inheritor_singleton_double_usage():
+    class LocalInheritor(InnerNoneType, singleton=True):
+        ...
+
+    LocalInheritor()
+
+    with pytest.raises(DoubleSingletonsInstantiationError, match=match('Class "LocalInheritor" is marked with a flag prohibiting the creation of more than one instance.')):
+        LocalInheritor()
+
+
+def test_inheritor_not_singleton_double_usage():
+    class AnotherLocalInheritor(InnerNoneType):
+        ...
+
+    first_instance = AnotherLocalInheritor()
+    second_instance = AnotherLocalInheritor()
+
+    assert cast(int, second_instance.id) > cast(int, first_instance.id)
+
+
+def test_try_to_inherit_singleton_class_with_singleton_mark():
+    class FirstLocalInheritor(InnerNoneType, singleton=True):
+        ...
+
+    class SecondLocalInheritor(FirstLocalInheritor, singleton=True):
+        ...
+
+
+def test_try_to_inherit_singleton_class_with_no_singleton_mark():
+    class FirstLocalInheritor(InnerNoneType, singleton=True):
+        ...
+
+    with pytest.raises(SingletonMarkConflictError, match=match('An inheritor of a singleton class cannot be declared a non-singleton.')):
+        class SecondLocalInheritor(FirstLocalInheritor, singleton=False):
+            ...
+
+    with pytest.raises(SingletonMarkConflictError, match=match('An inheritor of a singleton class cannot be declared a non-singleton.')):
+        class AnotherSecondLocalInheritor(FirstLocalInheritor, singleton=False):
+            ...
+
+
+def test_independence_of_singleton_marks():
+    class FirstLocalInheritor(InnerNoneType, singleton=True):
+        ...
+
+    FirstLocalInheritor()
+
+    class SecondLocalInheritor(FirstLocalInheritor, singleton=True):
+        ...
+
+    SecondLocalInheritor()
+
+    with pytest.raises(DoubleSingletonsInstantiationError, match=match('Class "SecondLocalInheritor" is marked with a flag prohibiting the creation of more than one instance.')):
+        SecondLocalInheritor()
+
+
+def test_check_instances_for_singleton_is_under_lock():
+    lock = LockTraceWrapper(Lock())
+
+    class LocalInheritor(InnerNoneType, singleton=True):
+
+        @property
+        def has_instances(self):
+            lock.notify('has_instances')
+            return False
+
+    LocalInheritor.lock = lock
+
+    LocalInheritor()
+
+    assert lock.was_event_locked('has_instances') and lock.trace  # noqa: PT018
+
+
+def test_no_check_instances_for_not_singletons():
+    breadcrumbs = []
+
+    class LocalInheritor(InnerNoneType, singleton=False):
+
+        @property
+        def has_instances(self):
+            breadcrumbs.append('has_instances')
+            return False
+
+    LocalInheritor()
+
+    assert not breadcrumbs
+
+
+def test_creating_of_singleton_objects_is_isolated_from_other_threads():
+    number_of_iterations = 10_000
+    number_of_threads = 10
+
+    errors = []
+
+    def create_singleton_objects():
+        for _ in range(number_of_iterations):
+            class NewClass(InnerNoneType, singleton=True):
+                ...
+
+            try:
+                NewClass()
+            except:  # noqa: E722
+                errors.append(True)
+
+            try:
+                NewClass()
+            except:  # noqa: E722
+                pass
+            else:
+                errors.append(True)
+
+    threads = [Thread(target=create_singleton_objects) for _ in range(number_of_threads)]
+
+    for thread in threads:
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    assert not errors
+
+
+def test_creating_of_singleton_objects_is_thread_safe():
+    number_of_iterations = 1000
+    number_of_threads = 5
+
+    successes = []
+    errors = []
+
+    def create_object(class_object):
+        try:
+            class_object()
+        except:  # noqa: E722
+            errors.append(True)
+        else:
+            successes.append(True)
+
+    for _ in range(number_of_iterations):
+        class NewClass(InnerNoneType, singleton=True):
+            ...
+        threads = [Thread(target=create_object, args=(NewClass,)) for _ in range(5)]
+
+        for thread in threads:
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+    assert len(successes) == number_of_iterations
+    assert len(errors) == number_of_iterations * (number_of_threads - 1)

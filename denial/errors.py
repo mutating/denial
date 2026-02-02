@@ -1,0 +1,6 @@
+class DoubleSingletonsInstantiationError(Exception):
+    ...
+
+
+class SingletonMarkConflictError(Exception):
+    ...
