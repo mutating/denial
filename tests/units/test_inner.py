@@ -1,5 +1,5 @@
-from typing import cast
 from threading import Thread
+from typing import cast
 
 from denial import InnerNone, InnerNoneType
 
