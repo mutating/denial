@@ -1,4 +1,4 @@
-from threading import Thread, Lock
+from threading import Lock, Thread
 from typing import cast
 
 import pytest
@@ -240,7 +240,6 @@ def test_check_instances_for_singleton_is_under_lock():
     lock = LockTraceWrapper(Lock())
 
     class LocalInheritor(InnerNoneType, singleton=True):
-        ...
 
         @property
         def has_instances(self):
@@ -258,7 +257,6 @@ def test_no_check_instances_for_not_singletons():
     breadcrumbs = []
 
     class LocalInheritor(InnerNoneType, singleton=False):
-        ...
 
         @property
         def has_instances(self):
