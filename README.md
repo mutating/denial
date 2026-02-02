@@ -200,6 +200,18 @@ variable: SentinelType = InnerNoneType()
 variable: SentinelType = None  # All 3 annotations are correct.
 ```
 
+Some programmers are very attentive to type safety and prefer to shift more of the work of checking types to automatic type checkers such as [`mypy`](https://mypy-lang.org/). In such cases, it may be useful to create your own types based on `InnerNoneType`:
+
+```python
+class MySentinelType(InnerNoneType):
+    ...
+
+def some_function(sentinel: MySentinelType):
+    ...
+```
+
+Using the derived class at runtime is completely identical to using the original `InnerNoneType` type and allows you to conveniently narrow down the scope of use of a specific type.
+
 
 ## Analogues
 
