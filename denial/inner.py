@@ -50,12 +50,10 @@ class InnerNoneType:
         return False
 
     def __init_subclass__(cls, singleton: bool = False):
-        super_class = super()
-
-        if hasattr(super_class, 'is_singleton') and super_class.is_singleton and not singleton:
+        if getattr(cls.__mro__[1], 'is_singleton', False) and not singleton:
             raise SingletonMarkConflictError('An inheritor of a singleton class cannot be declared a non-singleton.')
 
-        super_class.__init_subclass__()
+        super().__init_subclass__()
 
         cls.is_singleton = singleton
         cls.has_instances = False
