@@ -317,7 +317,7 @@ def test_creating_of_singleton_objects_is_thread_safe():
         else:
             successes.append(True)
 
-    for iteration in range(number_of_iterations):
+    for _ in range(number_of_iterations):
         class NewClass(InnerNoneType, singleton=True):
             ...
         threads = [Thread(target=create_object, args=(NewClass,)) for _ in range(5)]
