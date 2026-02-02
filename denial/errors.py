@@ -2,5 +2,5 @@ class DoubleSingletonsInstantiationError(Exception):
     ...
 
 
-class SingletonStatusTagConflictError(Exception):
+class SingletonMarkConflictError(Exception):
     ...

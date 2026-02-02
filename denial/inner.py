@@ -6,7 +6,7 @@ from printo import descript_data_object, not_none
 
 from denial.errors import (
     DoubleSingletonsInstantiationError,
-    SingletonStatusTagConflictError,
+    SingletonMarkConflictError,
 )
 
 
@@ -53,7 +53,7 @@ class InnerNoneType:
         super_class = super()
 
         if hasattr(super_class, 'is_singleton') and super_class.is_singleton and not singleton:
-            raise SingletonStatusTagConflictError('An inheritor of a singleton class cannot be declared a non-singleton.')
+            raise SingletonMarkConflictError('An inheritor of a singleton class cannot be declared a non-singleton.')
 
         super_class.__init_subclass__()
 
