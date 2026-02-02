@@ -153,8 +153,12 @@ print(InnerNoneType(123) == 123)
 All `InnerNoneType` objects have beautiful string mappings:
 
 ```python
+print(InnerNone)
+#> InnerNone
 print(InnerNoneType())
 #> InnerNoneType(1)
+print(InnerNoneType())
+#> InnerNoneType(2)
 print(InnerNoneType(123))
 #> InnerNoneType(123, auto=False)
 ```
