@@ -3,6 +3,7 @@ from threading import Lock
 from typing import Any, Optional, Union
 
 from printo import descript_data_object, not_none
+from locklib import ContextLockProtocol
 
 from denial.errors import (
     DoubleSingletonsInstantiationError,
@@ -16,7 +17,7 @@ class InnerNoneType:
     is_singleton: bool = False
     has_instances: bool = False
     counter = count()
-    lock: Lock = Lock()
+    lock: ContextLockProtocol = Lock()
 
     def __init__(self, id: Optional[Union[int, str]] = None, doc: Optional[str] = None, auto: bool = False) -> None:  # noqa: A002
         if id is None:
@@ -28,9 +29,12 @@ class InnerNoneType:
 
         self.doc = doc
 
-        with self.lock:
-            if self.is_singleton and self.has_instances:
-                raise DoubleSingletonsInstantiationError(f'Class "{type(self).__name__}" is marked with a flag prohibiting the creation of more than one instance.')
+        if self.is_singleton:
+            with self.lock:
+                if self.has_instances:
+                    raise DoubleSingletonsInstantiationError(f'Class "{type(self).__name__}" is marked with a flag prohibiting the creation of more than one instance.')
+                type(self).has_instances = True
+        else:
             type(self).has_instances = True
 
     def __eq__(self, other: Any) -> bool:
