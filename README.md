@@ -239,7 +239,7 @@ And of course, there are still different ways to implement primitive sentinels i
 
 ## FAQ
 
-Q1: Is this library the best option for sentinels?
+<a name="q1">Q1</a>: Is this library the best option for sentinels?
 
 A: Sentinel seems like a very simple task conceptually, we just need more `None`'s. But suddenly, creating a good sentinel option is one of the most difficult issues. There are too many ways to do this and too many trade-offs in which you need to choose a side. The design of sentinel objects is similar to the creation of axioms: it delves deep into parts of our psyche that are not usually subject to critical analysis, and therefore it is very difficult to talk about the problems that arise. So I'm not claiming to be the best solution to this issue, but I've tried to eliminate all the obvious disadvantages that don't involve trading. I'm not sure if it's even possible to find *the best solution* in this area, so all I can do is make *[an arbitrary decision](https://en.wikipedia.org/wiki/Analysis_paralysis)* and stick to it. If you want, join me.
 
