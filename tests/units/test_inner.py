@@ -1,3 +1,4 @@
+from typing import cast
 from threading import Thread
 
 from denial import InnerNone, InnerNoneType
@@ -32,23 +33,42 @@ def test_new_instance_has_id_more_0():
     assert instance_2.id == instance_1.id + 1
 
 
+def test_inheritor_ids():
+    instance = InnerNoneType()
+
+    class InheritorInnerNoneType(InnerNoneType):
+        ...
+
+    inheritors_instance = InheritorInnerNoneType()
+
+    assert cast(int, inheritors_instance.id) > cast(int, instance.id)
+    assert cast(int, inheritors_instance.id) < cast(int, InheritorInnerNoneType().id)
+
+
 def test_new_instance_repr():
-    new_instance = InnerNoneType()
-    new_instance_with_doc = InnerNoneType(doc='lol')
+    class InheritorInnerNoneType(InnerNoneType):
+        ...
 
-    assert repr(new_instance) == f'InnerNoneType({new_instance.id})'
-    assert repr(InnerNoneType('kek')) == "InnerNoneType('kek', auto=False)"
-    assert repr(InnerNoneType(123)) == "InnerNoneType(123, auto=False)"
-    assert repr(InnerNoneType(0)) == "InnerNoneType(0, auto=False)"
+    assert InnerNoneType.__name__ == 'InnerNoneType'
+    assert InheritorInnerNoneType.__name__ == 'InheritorInnerNoneType'
 
-    assert repr(new_instance_with_doc) == f"InnerNoneType({new_instance_with_doc.id}, doc='lol')"
-    assert repr(InnerNoneType('kek', doc='lol')) == "InnerNoneType('kek', doc='lol', auto=False)"
-    assert repr(InnerNoneType(123, doc='lol')) == "InnerNoneType(123, doc='lol', auto=False)"
-    assert repr(InnerNoneType(0, doc='lol')) == "InnerNoneType(0, doc='lol', auto=False)"
+    for class_object in (InnerNoneType, InheritorInnerNoneType):
+        class_name = class_object.__name__
+        new_instance = class_object()
+        new_instance_with_doc = class_object(doc='lol')
 
-    # Regression: falsy id (e.g. '') with auto=True must not get repr 'InnerNone' (issue 10)
-    assert repr(InnerNoneType('', auto=True)) != 'InnerNone'
-    assert 'InnerNoneType' in repr(InnerNoneType('', auto=True))
+        assert repr(new_instance) == f'{class_name}({new_instance.id})'
+        assert repr(class_object('kek')) == f"{class_name}('kek', auto=False)"
+        assert repr(class_object(123)) == f"{class_name}(123, auto=False)"
+        assert repr(class_object(0)) == f"{class_name}(0, auto=False)"
+
+        assert repr(new_instance_with_doc) == f"{class_name}({new_instance_with_doc.id}, doc='lol')"
+        assert repr(class_object('kek', doc='lol')) == f"{class_name}('kek', doc='lol', auto=False)"
+        assert repr(class_object(123, doc='lol')) == f"{class_name}(123, doc='lol', auto=False)"
+        assert repr(class_object(0, doc='lol')) == f"{class_name}(0, doc='lol', auto=False)"
+
+        assert repr(class_object('', auto=True)) != 'InnerNone'
+        assert class_name in repr(class_object('', auto=True))
 
 
 def test_eq():
