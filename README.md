@@ -270,3 +270,19 @@ A: If you create `InnerNoneType` objects without passing any arguments to the co
 <a name="q8">Q8</a>: Why all these complications and an additional library for sentinels? I just write `sentinel = object()` in my code and then do checks like `x is sentinel`. It works, but you've overcomplicated things.
 
 A: Indeed, we already have one source of unique ids for objects: their addresses in memory. Checks like `x is sentinel` can be identical in meaning to those used in this library. However, this option has two significant drawbacks. First, you lose the compactness of string representation that `denial` provides. Second, this method does not allow you to create two identical sentinel objects if you want to, which prevents you from, for example, transferring sentinel objects over the network or between processes. Unfortunately, this is impossible with memory addresses. Since this library is positioned as universal, I had to abandon this option.
+
+<a name="q9">Q9</a>: Why don't we use [Enums](https://docs.python.org/3/library/enum.html) as sentinels? It's already in the standard library, no need to invent anything. And it can do all the things we expect from sentinels.
+
+A: [Various](https://t.me/ru_python/2680685) [people](https://www.reddit.com/r/Python/comments/1qraodv/comment/o2n0d94/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) have suggested this method to me, and it was also mentioned in [PEP-661](https://peps.python.org/pep-0661/). The PEP argues that Enum's `__repr__` is too long. In `denial`, I made a short and informative `__repr__`, which should be sufficient in principle. However, here are some other reasons not to use Enum:
+
+- Denial can be used in recursive algorithms where the number of nesting levels is unknown in advance. This is possible because the number of variables with sentinels is not limited here. In the case of Enum, you must know the number of nesting levels in advance.
+
+- Using a single Enum class with all sentinels in the program contradicts the idea of modularity. In essence, this is equivalent to using global variables, which usually indicates code with a “bad smell.” If you create an Enum class for each sentinel, it will look too verbose.
+
+- Under the hood, Enum uses the global registry approach that I discussed in the FAQ section of the README.
+
+- Enum usually has slightly different semantics. For example, I can hardly imagine a situation where I would want to iterate through all sentinels.
+
+- Enum is generally too complex a tool for such a simple purpose. If you're interested, here's what one of Python's core developers wrote about it (in Russian, requires switching to Telegram): https://t.me/opensource_findings/883 In my opinion, the entire Enum module should have been deprecated long ago. The sheer size of the module's documentation and the existence of several official manuals for it suggest that something is wrong here.
+
+- Another argument may seem ridiculous given the slowness of CPython, but I'll mention it anyway. Enum forces the user to use values via a dot, such as EnumClass.SENTINEL. This leads to an unnecessary lookup operation and a slight slowdown of the program. However, I haven't done any measurements, so perhaps this has been optimized in some way by the CPython developers.
