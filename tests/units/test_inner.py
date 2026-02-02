@@ -34,12 +34,17 @@ def test_new_instance_has_id_more_0():
 
 def test_new_instance_repr():
     new_instance = InnerNoneType()
+    new_instance_with_doc = InnerNoneType(doc='lol')
 
     assert repr(new_instance) == f'InnerNoneType({new_instance.id})'
     assert repr(InnerNoneType('kek')) == "InnerNoneType('kek', auto=False)"
     assert repr(InnerNoneType(123)) == "InnerNoneType(123, auto=False)"
-
     assert repr(InnerNoneType(0)) == "InnerNoneType(0, auto=False)"
+
+    assert repr(new_instance_with_doc) == f"InnerNoneType({new_instance_with_doc.id}, doc='lol')"
+    assert repr(InnerNoneType('kek', doc='lol')) == "InnerNoneType('kek', doc='lol', auto=False)"
+    assert repr(InnerNoneType(123, doc='lol')) == "InnerNoneType(123, doc='lol', auto=False)"
+    assert repr(InnerNoneType(0, doc='lol')) == "InnerNoneType(0, doc='lol', auto=False)"
 
     # Regression: falsy id (e.g. '') with auto=True must not get repr 'InnerNone' (issue 10)
     assert repr(InnerNoneType('', auto=True)) != 'InnerNone'

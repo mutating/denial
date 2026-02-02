@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "denial"
-version = "0.0.8"
+version = "0.0.9"
 authors = [{ name = "Evgeniy Blinov", email = "zheni-b@yandex.ru" }]
 description = "Is one None not enough for you? There's more"
 readme = "README.md"

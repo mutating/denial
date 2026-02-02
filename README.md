@@ -150,6 +150,26 @@ print(InnerNoneType(123) == 123)
 
 > ⚠️ For most situations, I do not recommend passing arguments to the class constructor. This can lead to situations where two identifiers from different parts of your code accidentally end up being the same, which can result in errors that are difficult to catch. If you do not pass arguments, the uniqueness of each `InnerNoneType` object created is guaranteed.
 
+All `InnerNoneType` objects have beautiful string mappings:
+
+```python
+print(InnerNoneType())
+#> InnerNoneType(1)
+print(InnerNoneType(123))
+#> InnerNoneType(123, auto=False)
+```
+
+You can also add a documentation string to the object, it will also be displayed:
+
+```python
+print(InnerNoneType(doc='My doc string!'))
+#> InnerNoneType(1, doc='My doc string!')
+print(InnerNoneType(123, doc='My doc string!'))
+#> InnerNoneType(123, doc='My doc string!', auto=False)
+```
+
+Documentation strings are not taken into account when comparing `InnerNoneType` objects.
+
 
 ## Type hinting
 
@@ -245,4 +265,4 @@ A: If you create `InnerNoneType` objects without passing any arguments to the co
 
 Q: Why all these complications and an additional library for sentinels? I just write `sentinel = object()` in my code and then do checks like `x is sentinel`. It works, but you've overcomplicated things.
 
-A: Indeed, we already have one source of unique IDs for objects: their addresses in memory. Checks of the type x is sentinel can be identical in meaning to those used in this library. However, this option has two significant drawbacks. First, you lose the compactness of string representation that denial provides. Second, this method does not allow you to create two identical sentinel objects if you want to, which prevents you from, for example, transferring sentinel objects over the network or between processes. Unfortunately, this is impossible with memory addresses. Since this library is positioned as universal, I had to abandon this option.
+A: Indeed, we already have one source of unique IDs for objects: their addresses in memory. Checks of the type x is sentinel can be identical in meaning to those used in this library. However, this option has two significant drawbacks. First, you lose the compactness of string representation that `denial` provides. Second, this method does not allow you to create two identical sentinel objects if you want to, which prevents you from, for example, transferring sentinel objects over the network or between processes. Unfortunately, this is impossible with memory addresses. Since this library is positioned as universal, I had to abandon this option.
