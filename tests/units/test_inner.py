@@ -250,7 +250,7 @@ def test_check_instances_for_singleton_is_under_lock():
 
     LocalInheritor()
 
-    assert lock.was_event_locked('has_instances') and lock.trace
+    assert lock.was_event_locked('has_instances') and lock.trace  # noqa: PT018
 
 
 def test_no_check_instances_for_not_singletons():
@@ -281,12 +281,12 @@ def test_creating_of_singleton_objects_is_isolated_from_other_threads():
 
             try:
                 NewClass()
-            except:
+            except:  # noqa: E722
                 errors.append(True)
 
             try:
                 NewClass()
-            except:
+            except:  # noqa: E722
                 pass
             else:
                 errors.append(True)
@@ -312,7 +312,7 @@ def test_creating_of_singleton_objects_is_thread_safe():
     def create_object(class_object):
         try:
             class_object()
-        except:
+        except:  # noqa: E722
             errors.append(True)
         else:
             successes.append(True)
