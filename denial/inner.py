@@ -1,13 +1,19 @@
 from itertools import count
 from typing import Any, Optional, Union
+from threading import Lock
 
 from printo import descript_data_object, not_none
+
+from denial.errors import DoubleSingletonsInstantiationError, SingletonStatusTagConflictError
 
 
 class InnerNoneType:
     id: Optional[Union[int, str]]  # pragma: no cover
     auto: bool  # pragma: no cover
+    is_singleton: bool = False
+    has_instances: bool = False
     counter = count()
+    lock: Lock = Lock()
 
     def __init__(self, id: Optional[Union[int, str]] = None, doc: Optional[str] = None, auto: bool = False) -> None:  # noqa: A002
         if id is None:
@@ -16,7 +22,13 @@ class InnerNoneType:
         else:
             self.id = id
             self.auto = auto
+
         self.doc = doc
+
+        with self.lock:
+            if self.is_singleton and self.has_instances:
+                raise DoubleSingletonsInstantiationError(f'Class "{type(self).__name__}" is marked with a flag prohibiting the creation of more than one instance.')
+            type(self).has_instances = True
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, type(self)):
@@ -33,6 +45,17 @@ class InnerNoneType:
 
     def __bool__(self) -> bool:
         return False
+
+    def __init_subclass__(cls, singleton: bool = False):
+        super_class = super()
+
+        if hasattr(super_class, 'is_singleton') and super_class.is_singleton and not singleton:
+            raise SingletonStatusTagConflictError('An inheritor of a singleton class cannot be declared a non-singleton.')
+
+        super_class.__init_subclass__()
+
+        cls.is_singleton = singleton
+        cls.has_instances = False
 
 
 InnerNone = InnerNoneType()

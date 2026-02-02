@@ -1,0 +1,6 @@
+class DoubleSingletonsInstantiationError(Exception):
+    ...
+
+
+class SingletonStatusTagConflictError(Exception):
+    ...
