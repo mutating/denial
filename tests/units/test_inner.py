@@ -236,21 +236,25 @@ def test_independence_of_singleton_marks():
         SecondLocalInheritor()
 
 
-def test_check_instances_for_singleton_is_under_lock():
+def test_check_instances_for_singleton_is_under_lock(monkeypatch):
     lock = LockTraceWrapper(Lock())
 
-    class LocalInheritor(InnerNoneType, singleton=True):
+    def mock_init(self, message):  # noqa: ARG001
+        lock.notify('has_instances')
 
-        @property
-        def has_instances(self):
-            lock.notify('has_instances')
-            return False
+    monkeypatch.setattr(DoubleSingletonsInstantiationError, "__init__", mock_init)
+
+    class LocalInheritor(InnerNoneType, singleton=True):
+        ...
 
     LocalInheritor.lock = lock
 
     LocalInheritor()
 
-    assert lock.was_event_locked('has_instances') and lock.trace  # noqa: PT018
+    with pytest.raises(DoubleSingletonsInstantiationError):
+        LocalInheritor()
+
+    assert lock.was_event_locked('has_instances')
 
 
 def test_no_check_instances_for_not_singletons():

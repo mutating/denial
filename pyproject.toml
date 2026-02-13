@@ -4,17 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "denial"
-version = "0.0.10"
+version = "0.0.11"
 authors = [{ name = "Evgeniy Blinov", email = "zheni-b@yandex.ru" }]
 description = "Is one None not enough for you? There's more"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-    'printo==0.0.8',
-    'locklib==0.0.18',
+    'printo>=0.0.10',
+    'locklib>=0.0.20',
     'typing_extensions ; python_version <= "3.10"',
 ]
-
 classifiers = [
     "Operating System :: OS Independent",
     'Operating System :: MacOS :: MacOS X',
@@ -53,5 +52,5 @@ lint.select = ["ERA001", "YTT", "ASYNC", "BLE", "B", "A", "COM", "INP", "PIE", "
 format.quote-style = "single"
 
 [project.urls]
-'Source' = 'https://github.com/pomponchik/denial'
-'Tracker' = 'https://github.com/pomponchik/denial/issues'
+'Source' = 'https://github.com/mutating/denial'
+'Tracker' = 'https://github.com/mutating/denial/issues'

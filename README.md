@@ -3,20 +3,20 @@
 
 [![Downloads](https://static.pepy.tech/badge/denial/month)](https://pepy.tech/project/denial)
 [![Downloads](https://static.pepy.tech/badge/denial)](https://pepy.tech/project/denial)
-[![Coverage Status](https://coveralls.io/repos/github/pomponchik/denial/badge.svg?branch=main)](https://coveralls.io/github/pomponchik/denial?branch=main)
-[![Lines of code](https://sloc.xyz/github/pomponchik/denial/?category=code)](https://github.com/boyter/scc/)
-[![Hits-of-Code](https://hitsofcode.com/github/pomponchik/denial?branch=main&label=Hits-of-Code&exclude=docs/)](https://hitsofcode.com/github/pomponchik/denial/view?branch=main)
-[![Test-Package](https://github.com/pomponchik/denial/actions/workflows/tests_and_coverage.yml/badge.svg)](https://github.com/pomponchik/denial/actions/workflows/tests_and_coverage.yml)
+[![Coverage Status](https://coveralls.io/repos/github/mutating/denial/badge.svg?branch=main)](https://coveralls.io/github/mutating/denial?branch=main)
+[![Lines of code](https://sloc.xyz/github/mutating/denial/?category=code)](https://github.com/boyter/scc/)
+[![Hits-of-Code](https://hitsofcode.com/github/mutating/denial?branch=main&label=Hits-of-Code&exclude=docs/)](https://hitsofcode.com/github/mutating/denial/view?branch=main)
+[![Test-Package](https://github.com/mutating/denial/actions/workflows/tests_and_coverage.yml/badge.svg)](https://github.com/mutating/denial/actions/workflows/tests_and_coverage.yml)
 [![Python versions](https://img.shields.io/pypi/pyversions/denial.svg)](https://pypi.python.org/pypi/denial)
 [![PyPI version](https://badge.fury.io/py/denial.svg)](https://badge.fury.io/py/denial)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/pomponchik/denial)
+[![DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/mutating/denial)
 
 </details>
 
 
-![logo](https://raw.githubusercontent.com/pomponchik/denial/develop/docs/assets/logo_1.svg)
+![logo](https://raw.githubusercontent.com/mutating/denial/develop/docs/assets/logo_1.svg)
 
 Python's built-in [`None`](https://docs.python.org/3/library/constants.html#None) constant may not be sufficient to [distinguish situations](https://en.wikipedia.org/wiki/Semipredicate_problem) where a value is *undefined* from situations where it is *defined as undefined*. Does that sound too abstract? Then read below the more detailed [description of the problem](#the-problem) and what [solutions](#analogues) exist for it.
 
@@ -181,7 +181,7 @@ Documentation strings are not taken into account when comparing `InnerNoneType` 
 
 > *[Official typing documentation](https://typing.python.org/en/latest/spec/special-types.html#none)*
 
-`None` is a special value for which Python type checkers make an exception, allowing it to be used as an annotation of its own type. Unfortunately, this behavior cannot be reproduced without changing the internal implementation of existing type checkers, which I would not expect until the [PEP](https://peps.python.org/pep-0661/) is adopted. However, there is one type checker that can work with objects from `denial`: [`simtypes`](https://github.com/pomponchik/simtypes). But this thing is very primitive and is only intended for runtime.
+`None` is a special value for which Python type checkers make an exception, allowing it to be used as an annotation of its own type. Unfortunately, this behavior cannot be reproduced without changing the internal implementation of existing type checkers, which I would not expect until the [PEP](https://peps.python.org/pep-0661/) is adopted. However, there is one type checker that can work with objects from `denial`: [`simtypes`](https://github.com/mutating/simtypes). But this thing is very primitive and is only intended for runtime.
 
 Therefore, it is suggested to use class `InnerNoneType` as a type annotation:
 
