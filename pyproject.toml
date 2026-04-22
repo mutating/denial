@@ -10,7 +10,7 @@ description = "Is one None not enough for you? There's more"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-    'printo>=0.0.22',
+    'printo>=0.0.27',
     'locklib>=0.0.20',
     'typing_extensions ; python_version <= "3.10"',
 ]
