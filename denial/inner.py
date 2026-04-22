@@ -48,7 +48,7 @@ class InnerNoneType:
     def __repr__(self) -> str:
         if self.id == 0 and self.auto:
             return 'InnerNone'
-        return describe_call(type(self).__name__, (self.id,), {'doc': self.doc, 'auto': self.auto}, filters={'auto': lambda x: x != True, 'doc': not_none})
+        return describe_call(type(self).__name__, [self.id], {'doc': self.doc, 'auto': self.auto}, filters={'auto': lambda x: x != True, 'doc': not_none})
 
     def __bool__(self) -> bool:
         return False
