@@ -1,21 +1,21 @@
 [build-system]
-requires = ["setuptools==68.0.0"]
-build-backend = "setuptools.build_meta"
+requires = ['setuptools==68.0.0']
+build-backend = 'setuptools.build_meta'
 
 [project]
-name = "denial"
-version = "0.0.14"
-authors = [{ name = "Evgeniy Blinov", email = "zheni-b@yandex.ru" }]
+name = 'denial'
+version = '0.0.14'
+authors = [{ name = 'Evgeniy Blinov', email = 'zheni-b@yandex.ru' }]
 description = "Is one None not enough for you? There's more"
-readme = "README.md"
-requires-python = ">=3.8"
+readme = 'README.md'
+requires-python = '>=3.8'
 dependencies = [
     'printo>=0.0.27',
     'locklib>=0.0.21',
     'typing_extensions ; python_version <= "3.10"',
 ]
 classifiers = [
-    "Operating System :: OS Independent",
+    'Operating System :: OS Independent',
     'Operating System :: MacOS :: MacOS X',
     'Operating System :: Microsoft :: Windows',
     'Operating System :: POSIX',
@@ -39,19 +39,19 @@ classifiers = [
 keywords = ['None', 'sentinel']
 
 [tool.setuptools.package-data]
-"denial" = ["py.typed"]
+"denial" = ['py.typed']
 
 [tool.mutmut]
-paths_to_mutate = "denial"
-runner = "pytest"
+paths_to_mutate = 'denial'
+runner = 'pytest'
 
 [tool.pytest.ini_options]
-markers = ["mypy_testing"]
+markers = ['mypy_testing']
 
 [tool.ruff]
 lint.ignore = ['E501', 'E712', 'PTH123', 'PTH118', 'PLR2004', 'PTH107', 'SIM105', 'SIM102', 'RET503', 'PLR0912', 'C901']
-lint.select = ["ERA001", "YTT", "ASYNC", "BLE", "B", "A", "COM", "INP", "PIE", "T20", "PT", "RSE", "RET", "SIM", "SLOT", "TID252", "ARG", "PTH", "I", "C90", "N", "E", "W", "D201", "D202", "D419", "F", "PL", "PLE", "PLR", "PLW", "RUF", "TRY201", "TRY400", "TRY401"]
-format.quote-style = "single"
+lint.select = ['ERA001', 'YTT', 'ASYNC', 'BLE', 'B', 'A', 'COM', 'INP', 'PIE', 'T20', 'PT', 'RSE', 'RET', 'SIM', 'SLOT', 'TID252', 'ARG', 'PTH', 'I', 'C90', 'N', 'E', 'W', 'D201', 'D202', 'D419', 'F', 'PL', 'PLE', 'PLR', 'PLW', 'RUF', 'TRY201', 'TRY400', 'TRY401']
+format.quote-style = 'single'
 
 [project.urls]
 'Source' = 'https://github.com/mutating/denial'
