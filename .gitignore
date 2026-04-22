@@ -20,3 +20,4 @@ uv.lock
 .ropeproject
 node_modules
 mutants
+.qwen
